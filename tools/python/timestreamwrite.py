@@ -5,9 +5,9 @@ import time
 import sys, traceback
 import pprint
 
-'''
-## Create a timestream write client.
-'''
+##################################################
+## Create a timestream write client.    ##########
+##################################################
 def createWriteClient(region, profile = None, credStr = None):
     if profile == None and credStr == None:
         print("Using credentials from the environment")
@@ -24,27 +24,49 @@ def createWriteClient(region, profile = None, credStr = None):
                             region_name = region, config = config)
     return client
 
-def describeTable(client, databaseName, tableName):
-    return client.describe_table(DatabaseName = databaseName, TableName = tableName)
-
 def writeRecords(client, databaseName, tableName, commonAttributes, records):
     return client.write_records(DatabaseName = databaseName, TableName = tableName,
         CommonAttributes = (commonAttributes), Records = (records))
 
+##################################################
+## DDL Functions for database.            ########
+##################################################
+def describeDatabase(client, databaseName):
+    return client.describe_database(DatabaseName = databaseName)
+
 def createDatabase(client, databaseName):
     return client.create_database(DatabaseName = databaseName)
+
+def deleteDatabase(client, databaseName):
+    return client.delete_database(DatabaseName=databaseName)
+
+def getDatabaseList(client):
+    databases = list()
+    nextToken = None
+    while True:
+        if nextToken == None:
+            result = client.list_databases()
+        else:
+            result = client.list_databases(NextToken = nextToken)
+        for item in result['Databases']:
+            databases.append(item['DatabaseName'])
+        nextToken = result.get('NextToken')
+        if nextToken == None:
+            break
+
+    return databases
+
+##################################################
+## DDL functions for tables.              ########
+##################################################
+def describeTable(client, databaseName, tableName):
+    return client.describe_table(DatabaseName = databaseName, TableName = tableName)
 
 def createTable(client, databaseName, tableName, retentionProperties):
     return client.create_table(DatabaseName=databaseName, TableName=tableName, RetentionProperties=retentionProperties)
 
-def describeDatabase(client, databaseName):
-    return client.describe_database(DatabaseName = databaseName)
-
 def deleteTable(client, databaseName, tableName):
     return client.delete_table(DatabaseName=databaseName, TableName=tableName)
-
-def deleteDatabase(client, databaseName):
-    return client.delete_database(DatabaseName=databaseName)
 
 def getTableList(client, databaseName):
     tables = list()
