@@ -2,6 +2,7 @@ import boto3
 from botocore.config import Config
 import math
 import numpy as np
+import signal
 import threading
 import time         
 
@@ -225,6 +226,9 @@ threadloop = True
 threadlock = threading.Lock()
 threads = []
 
+def signalHandler(sig, frame):
+    stopAsyncWriter()
+
 def stopAsyncWriter():
     global threadloop
     threadloop = False
@@ -238,7 +242,7 @@ def joinAsyncWriter():
             thread.join()
 
         time.sleep(0.5)
-
+    
 def startAsyncWriter(threadcnt = 3):
     global threadloop
     threadloop = True
