@@ -169,6 +169,8 @@ def writeBulkSync(bulk, dryrun = False):
     records = bulk['records']
     bulkid = bulk['bulkid']
     callback = bulk['callback']
+    if 'dryrun' in bulk:
+        dryrun = bulk['dryrun']
     
     batch = []
     kbwrite = 0
@@ -222,7 +224,6 @@ threadqueue = []
 threadloop = True
 threadlock = threading.Lock()
 threads = []
-dryrun = False
 
 def stopAsyncWriter():
     global threadloop
@@ -262,7 +263,6 @@ def asyncwriter():
     global threadqueue
     global threadlock
     global threadloop
-    global dryrun
     
     while threadloop:
         with threadlock:
@@ -272,7 +272,7 @@ def asyncwriter():
                 bulk = {}
         # now if we have bulk, process it.         
         if len(bulk) > 0:
-            writeBulkSync(bulk, dryrun)
+            writeBulkSync(bulk)
         else:
             time.sleep(0.05)
     #print(threading.current_thread().getName(), 'Exiting')
