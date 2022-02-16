@@ -121,7 +121,7 @@ def estimatedWriteSize(common, records):
     totsize = 0
     comsize = 0
     if len(common) > 0:
-        comsize = writeRecordSize({}, [common])
+        comsize = estimatedWriteSize({}, [common])
         totsize += comsize
     
     for record in records:
