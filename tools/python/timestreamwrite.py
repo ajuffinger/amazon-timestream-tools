@@ -70,7 +70,10 @@ def describeTable(client, databaseName, tableName):
     return client.describe_table(DatabaseName = databaseName, TableName = tableName)
 
 def createTable(client, databaseName, tableName, retentionProperties):
-    return client.create_table(DatabaseName=databaseName, TableName=tableName, RetentionProperties=retentionProperties)
+    return createTable(client, databaseName, tableName, retentionProperties, {}, [])
+
+def createTable(client, databaseName, tableName, retentionProperties, magneticStoreProperties, tags):
+    return client.create_table(DatabaseName=databaseName, TableName=tableName, RetentionProperties=retentionProperties, MagneticStoreWriteProperties=magneticStoreProperties, Tags=tags)
 
 def deleteTable(client, databaseName, tableName):
     return client.delete_table(DatabaseName=databaseName, TableName=tableName)
