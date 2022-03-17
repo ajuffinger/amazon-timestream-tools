@@ -69,11 +69,11 @@ def getDatabaseList(client):
 def describeTable(client, databaseName, tableName):
     return client.describe_table(DatabaseName = databaseName, TableName = tableName)
 
-def createTable(client, databaseName, tableName, retentionProperties):
-    return createTable(client, databaseName, tableName, retentionProperties, {}, [])
-
-def createTable(client, databaseName, tableName, retentionProperties, magneticStoreProperties, tags):
-    return client.create_table(DatabaseName=databaseName, TableName=tableName, RetentionProperties=retentionProperties, MagneticStoreWriteProperties=magneticStoreProperties, Tags=tags)
+def createTable(client, databaseName, tableName, retentionProperties, magneticStoreProperties={}, tags=[]):
+    if len(magneticStoreProperties) > 0:
+        return client.create_table(DatabaseName=databaseName, TableName=tableName, RetentionProperties=retentionProperties, MagneticStoreWriteProperties=magneticStoreProperties, Tags=tags)
+    else: 
+        return client.create_table(DatabaseName=databaseName, TableName=tableName, RetentionProperties=retentionProperties, Tags=tags)
 
 def deleteTable(client, databaseName, tableName):
     return client.delete_table(DatabaseName=databaseName, TableName=tableName)
