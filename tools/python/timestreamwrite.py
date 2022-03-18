@@ -58,7 +58,7 @@ def writeRecords(client, databaseName, tableName, commonAttributes, records):
                 totals['MemoryStore']  += result['RecordsIngested']['MemoryStore']
                 totals['MagneticStore']  += result['RecordsIngested']['MagneticStore']
     except client.exceptions.RejectedRecordsException as err:
-        results.append(err.response)
+        raise err
 
     return totals, results
 
@@ -223,8 +223,8 @@ def writeBulkSync(bulk, dryrun = False):
             
             try:
                 if not dryrun:
-                    result = writeRecords(client, databaseName, tableName, common, batch)
-                    upscount += result['RecordsIngested']['Total']
+                    totals, results = writeRecords(client, databaseName, tableName, common, batch)
+                    upscount += totals['Total']
             except client.exceptions.RejectedRecordsException as err:
                 errcount += len(err.response["RejectedRecords"])
                 upscount += len(batch) - len(err.response["RejectedRecords"])
@@ -240,8 +240,8 @@ def writeBulkSync(bulk, dryrun = False):
 
         try:
             if not dryrun:
-                result = writeRecords(client, databaseName, tableName, common, batch)
-                upscount += result['RecordsIngested']['Total']
+                totals, results = writeRecords(client, databaseName, tableName, common, batch)
+                upscount += totals['Total']
         except client.exceptions.RejectedRecordsException as err:
             errcount += len(err.response["RejectedRecords"])
             upscount += len(batch) - len(err.response["RejectedRecords"])
