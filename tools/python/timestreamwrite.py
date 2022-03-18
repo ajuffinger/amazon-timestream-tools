@@ -26,8 +26,41 @@ def createWriteClient(region, profile = None, credStr = None):
     return client
 
 def writeRecords(client, databaseName, tableName, commonAttributes, records):
-    return client.write_records(DatabaseName = databaseName, TableName = tableName,
-        CommonAttributes = (commonAttributes), Records = (records))
+    totals = { 'Total': 0, 'MemoryStore':0, 'MagneticStore' : 0}
+    results = list()
+    try:
+        if len(records) < 101:
+            result = client.write_records(DatabaseName = databaseName, TableName = tableName,
+                CommonAttributes = (commonAttributes), Records = (records))
+            results.append(result)
+            totals['Total'] += result['RecordsIngested']['Total']
+            totals['MemoryStore']  += result['RecordsIngested']['MemoryStore']
+            totals['MagneticStore']  += result['RecordsIngested']['MagneticStore']
+            
+        else:
+            # {'RecordsIngested': {'Total': 5, 'MemoryStore': 5, 'MagneticStore': 0}, ...
+            batch = []
+            for record in records:
+                batch.append(record)
+                if len(batch) > 99:
+                    result = client.write_records(DatabaseName = databaseName, TableName = tableName,
+                                CommonAttributes = (commonAttributes), Records = (batch))
+                    results.append(result)
+                    totals['Total'] += result['RecordsIngested']['Total']
+                    totals['MemoryStore']  += result['RecordsIngested']['MemoryStore']
+                    totals['MagneticStore']  += result['RecordsIngested']['MagneticStore']
+                    batch = []        
+            if len(batch) > 0:
+                result = client.write_records(DatabaseName = databaseName, TableName = tableName,
+                   CommonAttributes = (commonAttributes), Records = (batch))
+                results.append(result)
+                totals['Total'] += result['RecordsIngested']['Total']
+                totals['MemoryStore']  += result['RecordsIngested']['MemoryStore']
+                totals['MagneticStore']  += result['RecordsIngested']['MagneticStore']
+    except client.exceptions.RejectedRecordsException as err:
+        results.append(err.response)
+
+    return totals, results
 
 ##################################################
 ## DDL Functions for database.            ########
