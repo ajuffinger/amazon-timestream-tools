@@ -38,7 +38,7 @@ def writeRecords(client, databaseName, tableName, commonAttributes, records):
             totals['MagneticStore']  += result['RecordsIngested']['MagneticStore']
             
         else:
-            # {'RecordsIngested': {'Total': 5, 'MemoryStore': 5, 'MagneticStore': 0}, ...
+            # {'RecordsIngested': {'Total': 5, 'MemoryStore': 5, 'MagneticStore': 0}, ...
             batch = []
             for record in records:
                 batch.append(record)
